@@ -135,6 +135,32 @@ class QuoteController extends Controller
         return back()->with('success', 'أُضيف أثرك بنقاء إلى المنصة.');
     }
 
+
+    public function update(Request $request, Quote $quote)
+    {
+        if ($quote->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'content' => 'required|string|min:3|max:500',
+            'author'  => 'nullable|string|min:2|max:50',
+        ], [
+            'content.required' => 'حقل الاقتباس لا يمكن أن يكون فارغاً.',
+            'content.min'      => 'يجب ألا يقل نص الاقتباس عن 3 أحرف.',
+            'content.max'      => 'يجب ألا يتجاوز نص الاقتباس 500 حرف.',
+            'author.min'       => 'اسم القائل يجب أن يكون حرفين على الأقل.',
+            'author.max'       => 'اسم القائل يجب ألا يتجاوز 50 حرفاً.',
+        ]);
+
+        $quote->update([
+            'content' => $validated['content'],
+            'author'  => $validated['author'] ?: Auth::user()->name,
+        ]);
+
+        return back()->with('success', 'تم تحديث أثرك بنجاح.');
+    }
+    
     public function destroy(Quote $quote)
     {
         if ($quote->user_id !== Auth::id()) {
