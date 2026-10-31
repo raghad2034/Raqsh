@@ -17,6 +17,13 @@
 @endphp
 
 <style>
+  html, body, main {
+    direction: rtl !important;
+    text-align: right !important;
+  }
+  .card, article {
+    text-align: right !important;
+  }
   @keyframes roseTinyGlow {
     0%, 100% {
       transform: scale(1);
@@ -138,12 +145,6 @@
         ?>
         <article data-quote data-id="{{ $quote->id }}" data-content="{{ $quote->content }}" data-author="{{ $hasAuthor ? $quote->author : '' }}"
                  data-likes="{{ $quote->likes->count() }}" data-mine="{{ $isMine ? 1 : 0 }}" data-saved="{{ $isSaved ? 1 : 0 }}" class="card rounded-2xl p-6">
-          
-          @if(!empty($quote->card_image))
-            <div class="mb-4 overflow-hidden rounded-xl border border-line shadow-sm">
-              <img src="{{ $quote->card_image }}" alt="أثر مرسوم" class="w-full object-cover">
-            </div>
-          @endif
 
           <p class="qt text-xl">{{ $quote->content }}</p>
           <div class="mt-5 border-t border-line pt-4">
@@ -327,32 +328,10 @@
   <div id="modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-wine/40 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <form id="quoteForm" action="{{ route('quotes.store') }}" method="POST" novalidate class="pop max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-3xl border border-line bg-white p-6 shadow-2xl sm:p-8">
       @csrf
-      <input type="hidden" name="card_image" id="cardImageInput">
 
-      <div class="mb-4 flex items-center justify-between">
+      <div class="mb-5 flex items-center justify-between">
         <h2 id="modalTitle" class="text-xl font-semibold text-wine">أضف أثراً جديداً</h2>
         <button type="button" id="closeModal" class="grid h-9 w-9 place-items-center rounded-full text-mute hover:text-ink" aria-label="إغلاق"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-
-      <div id="modes" role="tablist" class="mb-4 flex gap-2 text-sm">
-        <button type="button" role="tab" data-mode="write" aria-selected="true" class="tab rounded-full border border-line px-4 py-1.5"><i class="fa-solid fa-pen-nib ml-1"></i> اكتب</button>
-        <button type="button" role="tab" data-mode="draw" aria-selected="false" class="tab rounded-full border border-line px-4 py-1.5"><i class="fa-solid fa-paintbrush ml-1"></i> ارسم بطاقة</button>
-      </div>
-
-      <div id="drawBox" class="mb-4 hidden">
-        <div id="paper" class="relative mx-auto aspect-square w-full max-w-sm overflow-hidden rounded-2xl border border-line" style="background:#fffdfa">
-          <canvas id="pad" width="540" height="540" class="absolute inset-0 h-full w-full touch-none"></canvas>
-          <p id="overlay" class="qt pointer-events-none absolute inset-x-4 top-1/2 hidden -translate-y-1/2 rounded-xl bg-white/75 p-3 text-center text-lg text-wine"></p>
-        </div>
-        <div class="mt-3 flex flex-wrap items-center gap-2 text-sm">
-          <?php foreach(['#b91c1c','#e11d48','#6e0f22','#2b0d13','#d97706'] as $col): ?>
-            <button type="button" data-ink="{{ $col }}" aria-label="لون" class="h-7 w-7 rounded-full border-2 border-white shadow ring-1 ring-line" style="background:{{ $col }}"></button>
-          <?php endforeach; ?>
-          <input id="brush" type="range" min="2" max="24" value="6" class="w-24 accent-[#6e0f22]">
-          <button type="button" id="undo" class="rounded-full border border-line px-3 py-1">تراجع</button>
-          <button type="button" id="clearPad" class="rounded-full border border-line px-3 py-1">مسح</button>
-        </div>
-        <p class="mt-2 text-xs text-mute">إذا رسمت بطاقة، ستُحفظ مع أثرك وتظهر لجميع الزوار في الصفحة الرئيسية.</p>
       </div>
 
       <label class="mb-1 block text-sm text-mute" for="content">النص <span class="text-rose">*</span></label>
@@ -536,33 +515,6 @@
     $('#fab').addEventListener('click', () => { modal.classList.remove('hidden'); modal.classList.add('flex'); content.focus(); });
     $('#closeModal').addEventListener('click', () => { modal.classList.add('hidden'); modal.classList.remove('flex'); });
     content.addEventListener('input', () => { count.textContent = content.value.length + ' / 155'; });
-
-    document.querySelectorAll('#modes [data-mode]').forEach(m => m.addEventListener('click', () => {
-      const d = m.dataset.mode === 'draw'; $('#drawBox').classList.toggle('hidden', !d);
-      document.querySelectorAll('#modes [data-mode]').forEach(x => x.setAttribute('aria-selected', x === m ? 'true' : 'false'));
-    }));
-
-    const pad = $('#pad'), px = pad ? pad.getContext('2d') : null;
-    let ink = '#b91c1c', on2 = false, hasDrawn = false, hist = [];
-    if (pad) {
-      px.lineCap = px.lineJoin = 'round';
-      const pos = e => { const r = pad.getBoundingClientRect(); return [(e.clientX - r.left) * pad.width / r.width, (e.clientY - r.top) * pad.height / r.height]; };
-      pad.addEventListener('pointerdown', e => {
-        on2 = true; hasDrawn = true; pad.setPointerCapture(e.pointerId); hist.push(pad.toDataURL());
-        px.strokeStyle = ink; px.lineWidth = +$('#brush').value * 1.6; const [x, y] = pos(e); px.beginPath(); px.moveTo(x, y); px.lineTo(x + .01, y); px.stroke();
-      });
-      pad.addEventListener('pointermove', e => { if (!on2) return; const [x, y] = pos(e); px.lineTo(x, y); px.stroke(); });
-      ['pointerup', 'pointercancel'].forEach(t => pad.addEventListener(t, () => { on2 = false; }));
-      $('#clearPad').addEventListener('click', () => { px.clearRect(0, 0, 540, 540); hasDrawn = false; });
-      $('#undo').addEventListener('click', () => { const u = hist.pop(); if (!u) return; const im = new Image(); im.onload = () => { px.clearRect(0, 0, 540, 540); px.drawImage(im, 0, 0); }; im.src = u; });
-      document.querySelectorAll('[data-ink]').forEach(b => b.addEventListener('click', () => { ink = b.dataset.ink; }));
-    }
-
-    $('#quoteForm').addEventListener('submit', () => {
-      if (hasDrawn && pad) {
-        $('#cardImageInput').value = pad.toDataURL('image/png');
-      }
-    });
   }
 
   window.editQuote = function(id, content, author) {

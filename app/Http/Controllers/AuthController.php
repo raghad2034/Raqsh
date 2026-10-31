@@ -19,9 +19,18 @@ class AuthController extends Controller
     public function signup(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|min:2|max:50',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:6|confirmed',
+            'password' => 'required|string|min:8',
+        ], [
+            'name.required' => 'يرجى كتابة الاسم.',
+            'name.min' => 'الاسم يجب ألا يقل عن حرفين.',
+            'name.max' => 'الاسم يجب ألا يزيد عن 50 حرفاً.',
+            'email.required' => 'البريد الإلكتروني مطلوب.',
+            'email.email' => 'يرجى كتابة بريد إلكتروني صالح.',
+            'email.unique' => 'هذا البريد مسجل مسبقاً لدينا.',
+            'password.required' => 'كلمة المرور مطلوبة.',
+            'password.min' => 'كلمة المرور يجب أن تتكون من 8 خانات على الأقل.',
         ]);
 
         $user = User::create([
@@ -47,6 +56,10 @@ class AuthController extends Controller
         $credentials = $request->validate([
             'email' => 'required|email',
             'password' => 'required',
+        ], [
+            'email.required' => 'البريد الإلكتروني مطلوب.',
+            'email.email' => 'يرجى إدخال بريد صالح.',
+            'password.required' => 'كلمة المرور مطلوبة.',
         ]);
 
         if (Auth::attempt($credentials)) {
