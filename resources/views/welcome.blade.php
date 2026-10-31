@@ -193,7 +193,7 @@
         </article>
       <?php endforeach; ?>
     </div>
-    <p id="empty" class="{{ $all->isEmpty() ? '' : 'hidden' }} py-16 text-center font-amiri text-2xl text-mute">لا آثار هنا بعد.</p>
+    <p id="empty" class="{{ $quotes->isEmpty() ? '' : 'hidden' }} py-16 text-center font-amiri text-2xl text-mute">لا آثار هنا بعد.</p>
   </section>
 
   @if(!empty($masters) && count($masters))
