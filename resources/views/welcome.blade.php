@@ -248,7 +248,9 @@
             <div class="flex gap-2 text-xs w-full justify-center">
               <button type="button" onclick="exportQuote(this)" class="flex-1 flex items-center justify-center gap-1.5 rounded-full border border-line px-3 py-1.5 transition hover:border-wine hover:text-wine"><i class="fa-solid fa-image"></i> تصدير</button>
               @auth
-              <button type="button" data-msave="{{ $mid }}" class="flex items-center justify-center gap-1.5 rounded-full border border-line px-3 py-1.5 transition hover:border-wine hover:text-wine"><i class="fa-regular fa-bookmark"></i> <span>احفظ</span></button>
+                <button type="button" data-msave="{{ $mid }}" class="flex items-center justify-center gap-1.5 rounded-full border border-line px-3 py-1.5 transition hover:border-wine hover:text-wine"><i class="fa-regular fa-bookmark"></i> <span>احفظ</span></button>
+              @else
+                <a href="{{ route('login') }}" class="flex items-center justify-center gap-1.5 rounded-full border border-line px-3 py-1.5 text-mute transition hover:border-wine hover:text-wine" title="سجّل الدخول للحفظ"><i class="fa-regular fa-bookmark"></i> <span>احفظ</span></a>
               @endauth
             </div>
           </div>
@@ -503,7 +505,35 @@
   setView(view);
 
   if ($('#closeViewer')) $('#closeViewer').addEventListener('click', () => { $('#viewer').classList.add('hidden'); $('#viewer').classList.remove('flex'); });
+  // تفعيل تبديل الحفظ لبطاقات سِيَر وفنون
+  const savedMasters = JSON.parse(localStorage.getItem('raqsh-saved-masters') || '[]');
+  document.querySelectorAll('[data-msave]').forEach(btn => {
+    const id = btn.dataset.msave;
+    const icon = btn.querySelector('i');
+    const label = btn.querySelector('span');
 
+    if (savedMasters.includes(id)) {
+      icon.classList.replace('fa-regular', 'fa-solid');
+      btn.classList.add('bg-wine', 'text-white', 'border-wine');
+      if (label) label.textContent = 'محفوظ';
+    }
+
+    btn.addEventListener('click', () => {
+      let current = JSON.parse(localStorage.getItem('raqsh-saved-masters') || '[]');
+      if (current.includes(id)) {
+        current = current.filter(x => x !== id);
+        icon.classList.replace('fa-solid', 'fa-regular');
+        btn.classList.remove('bg-wine', 'text-white', 'border-wine');
+        if (label) label.textContent = 'احفظ';
+      } else {
+        current.push(id);
+        icon.classList.replace('fa-regular', 'fa-solid');
+        btn.classList.add('bg-wine', 'text-white', 'border-wine');
+        if (label) label.textContent = 'محفوظ';
+      }
+      localStorage.setItem('raqsh-saved-masters', JSON.stringify(current));
+    });
+  });
   document.querySelectorAll('[data-book]').forEach(b => b.addEventListener('click', () => {
     document.querySelectorAll('[data-book]').forEach(x => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
     document.querySelectorAll('[data-bookpanel]').forEach(p => p.classList.toggle('hidden', p.dataset.bookpanel !== b.dataset.book));
