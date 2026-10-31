@@ -90,7 +90,7 @@
     
     <div class="card relative mt-8 max-w-xl rounded-2xl p-5">
       <p class="font-amiri text-2xl font-bold text-wine">رَقْش <span class="font-plex text-sm font-normal text-mute">· اسم</span></p>
-      <p class="mt-1 font-amiri text-xl leading-loose">النَّقشُ والكتابةُ المُنمَّقة؛ يُقال: رَقَشَ الكتابَ، أي كتبه وزيّنه. وهو عندنا أن يُكتَبَ الحرفُ فيُزهِر.</p>
+      <p class="mt-1 font-amiri text-xl leading-loose">النَّقشُ والكتابةُ المُنمَّقة؛ يُقال: رَقَشَ الكتابَ، أي كتبه وزيّنه</p>
     </div>
   </section>
   @endguest
